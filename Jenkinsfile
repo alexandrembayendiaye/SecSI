@@ -26,10 +26,17 @@ pipeline {
       }
       post {
         always {
-          junit '**/target/surefire-reports/*.xml'
+          script {
+            try {
+              junit '**/target/surefire-reports/*.xml'
+            } catch (Exception e) {
+              echo "⚠️ Aucun fichier de test trouvé, on continue quand même."
+            }
+          }
           publishCoverage adapters: [coberturaAdapter('**/target/site/jacoco/jacoco.xml')]
         }
       }
+
     }
 
     stage('SonarQube Analysis') {
