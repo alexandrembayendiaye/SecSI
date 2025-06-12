@@ -3,9 +3,9 @@ pipeline {
 
   tools {
     // Versions installées auto dans Jenkins
-    jdk 'Java21'
-    maven 'Maven3'
-    sonar 'SonarScanner'
+    jdk 'JDK21-sante'
+    maven 'maven-sante'
+    sonar 'sonarScanner-sante'
   }
 
   environment {
