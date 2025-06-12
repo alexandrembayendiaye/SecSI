@@ -7,8 +7,11 @@ pipeline {
   }
 
   environment {
-    SONAR_TOKEN = credentials('SONAR_TOKEN') // Token stocké dans les Credentials
+    SONAR_TOKEN = credentials('SONAR_TOKEN')
+    JAVA_HOME = tool name: 'JDK21-sante', type: 'hudson.model.JDK'
+    PATH = "${JAVA_HOME}/bin:${env.PATH}"
   }
+
 
   stages {
     stage('Checkout') {
