@@ -33,7 +33,7 @@ pipeline {
               echo "⚠️ Aucun fichier de test trouvé, on continue quand même."
             }
           }
-          publishCoverage adapters: [coberturaAdapter('**/target/site/jacoco/jacoco.xml')]
+          //publishCoverage adapters: [coberturaAdapter('**/target/site/jacoco/jacoco.xml')]
         }
       }
 
