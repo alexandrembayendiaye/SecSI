@@ -2,15 +2,12 @@ pipeline {
   agent any
 
   tools {
-    // Versions installées auto dans Jenkins
-    jdk 'JDK21-sante'
-    maven 'maven-sante'
-    sonar 'sonarScanner-sante'
+    jdk 'JDK21-sante'        // Assurez-vous que ce nom est bien configuré dans Jenkins
+    maven 'maven-sante'      // Pareil pour Maven
   }
 
   environment {
-    // Token SonarQube stocké dans Credentials
-    SONAR_TOKEN = credentials('SONAR_TOKEN')
+    SONAR_TOKEN = credentials('SONAR_TOKEN') // Token stocké dans les Credentials
   }
 
   stages {
@@ -22,12 +19,10 @@ pipeline {
 
     stage('Build & Test') {
       steps {
-        // Compile, teste et génère le rapport JaCoCo
         sh 'mvn clean verify jacoco:report'
       }
       post {
         always {
-          // Archive rapports et couverture
           junit '**/target/surefire-reports/*.xml'
           publishCoverage adapters: [coberturaAdapter('**/target/site/jacoco/jacoco.xml')]
         }
@@ -49,7 +44,6 @@ pipeline {
 
     stage('Quality Gate') {
       steps {
-        // Bloque si la gate Sonar échoue
         waitForQualityGate abortPipeline: true
       }
     }
@@ -59,7 +53,6 @@ pipeline {
         expression { currentBuild.currentResult == 'SUCCESS' }
       }
       steps {
-        // Création de l’artefact Docker et push
         sh 'docker build -t monappli-sante:${env.BUILD_NUMBER} .'
         sh 'docker push monappli-sante:${env.BUILD_NUMBER}'
       }
