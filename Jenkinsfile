@@ -45,6 +45,14 @@ pipeline {
       }
     }
 
+    stage('Check JAVA_HOME') {
+        steps {
+            sh 'echo JAVA_HOME=$JAVA_HOME'
+            sh 'java -version'
+        }
+    }
+
+
     stage('Quality Gate') {
       steps {
         waitForQualityGate abortPipeline: true
