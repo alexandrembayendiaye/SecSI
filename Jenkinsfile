@@ -22,13 +22,13 @@ pipeline {
 
     stage('Build & Test') {
       steps {
-        sh 'mvn clean verify jacoco:report'
+        sh 'mvn clean verify'
       }
       post {
         always {
           script {
             try {
-              junit '**/target/surefire-reports/*.xml'
+              //junit '**/target/surefire-reports/*.xml'
             } catch (Exception e) {
               echo "⚠️ Aucun fichier de test trouvé, on continue quand même."
             }
