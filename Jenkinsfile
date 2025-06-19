@@ -2,17 +2,17 @@ pipeline {
   agent any
 
   tools {
-    jdk 'JDK21-sante'        // Assurez-vous que ce nom est bien configuré dans Jenkins
-    maven 'maven-sante'      // Pareil pour Maven
+    jdk 'JDK21-sante'
+    maven 'maven-sante'
   }
 
   environment {
     SONAR_TOKEN = credentials('SONAR_TOKEN')
     JAVA_HOME = tool name: 'JDK21-sante', type: 'hudson.model.JDK'
     PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
-    SONAR_HOST_URL = 'http://host.docker.internal:9000'
-    }
+    SONAR_HOST_URL = 'http://172.17.0.2:9000'  // <- IP réelle du conteneur SonarQube
 
+  }
 
   stages {
     stage('Checkout') {
@@ -29,15 +29,14 @@ pipeline {
         always {
           script {
             try {
-              //junit '**/target/surefire-reports/*.xml'
+              // junit '**/target/surefire-reports/*.xml'
             } catch (Exception e) {
-              echo "⚠️ Aucun fichier de test trouvé, on continue quand même."
+              echo "⚠️ Aucun fichier de test trouvé."
             }
           }
-          //publishCoverage adapters: [coberturaAdapter('**/target/site/jacoco/jacoco.xml')]
+          // publishCoverage adapters: [coberturaAdapter('**/target/site/jacoco/jacoco.xml')]
         }
       }
-
     }
 
     stage('SonarQube Analysis') {
@@ -51,24 +50,30 @@ pipeline {
                 -Dsonar.host.url=$SONAR_HOST_URL \
                 -Dsonar.login=$SONAR_TOKEN \
                 -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+
+              echo "📂 Listing de target/sonar :"
+              ls -la target/sonar || echo "❌ Dossier introuvable"
+
+              echo "📄 Contenu de report-task.txt :"
+              cat target/sonar/report-task.txt || echo "❌ report-task.txt introuvable"
             '''
           }
         }
       }
     }
 
-
     stage('Check JAVA_HOME') {
-        steps {
-            sh 'echo JAVA_HOME=$JAVA_HOME'
-            sh 'java -version'
-        }
+      steps {
+        sh 'echo JAVA_HOME=$JAVA_HOME'
+        sh 'java -version'
+      }
     }
-
 
     stage('Quality Gate') {
       steps {
-        waitForQualityGate abortPipeline: true
+        timeout(time: 5, unit: 'MINUTES') {
+          waitForQualityGate abortPipeline: true
+        }
       }
     }
 
