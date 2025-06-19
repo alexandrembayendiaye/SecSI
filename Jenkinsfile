@@ -45,15 +45,18 @@ pipeline {
         withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
           withSonarQubeEnv('MySonarQube') {
             sh '''
+              echo "🔐 Analyse SonarQube en cours..."
               mvn sonar:sonar \
                 -Dsonar.projectKey=monappli_sante \
                 -Dsonar.host.url=$SONAR_HOST_URL \
-                -Dsonar.login=$SONAR_TOKEN
+                -Dsonar.login=$SONAR_TOKEN \
+                -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
             '''
           }
         }
       }
     }
+
 
     stage('Check JAVA_HOME') {
         steps {
