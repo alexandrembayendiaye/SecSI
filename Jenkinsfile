@@ -10,6 +10,7 @@ pipeline {
     SONAR_TOKEN = credentials('SONAR_TOKEN')
     JAVA_HOME = tool name: 'JDK21-sante', type: 'hudson.model.JDK'
     PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
+    SONAR_HOST_URL = 'http://host.docker.internal:9000'
     }
 
 
@@ -43,17 +44,16 @@ pipeline {
       steps {
         withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
           withSonarQubeEnv('MySonarQube') {
-            sh """
+            sh '''
               mvn sonar:sonar \
                 -Dsonar.projectKey=monappli_sante \
-                -Dsonar.host.url=${SONAR_HOST_URL} \
-                -Dsonar.token=$SONAR_TOKEN
-            """
+                -Dsonar.host.url=$SONAR_HOST_URL \
+                -Dsonar.login=$SONAR_TOKEN
+            '''
           }
         }
       }
     }
-
 
     stage('Check JAVA_HOME') {
         steps {
